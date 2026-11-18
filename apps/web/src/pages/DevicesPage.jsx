@@ -1,0 +1,136 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { listarMisEquipos, registrarEquipo } from '../services/devicesService';
+
+export function DevicesPage() {
+  const [listaEquipos, setListaEquipos] = useState([]);
+  const [cargandoLista, setCargandoLista] = useState(true);
+  const [enviandoEquipo, setEnviandoEquipo] = useState(false);
+  const [avisoError, setAvisoError] = useState('');
+
+  const [equipoNuevo, setEquipoNuevo] = useState({
+    type: 'Laptop',
+    brand: '',
+    model: '',
+  });
+
+  const cargarEquipos = async () => {
+    setCargandoLista(true);
+    setAvisoError('');
+    try {
+      const equipos = await listarMisEquipos();
+      setListaEquipos(Array.isArray(equipos) ? equipos : []);
+    } catch (fallo) {
+      setAvisoError(fallo.message || 'Error al cargar dispositivos');
+    } finally {
+      setCargandoLista(false);
+    }
+  };
+
+  useEffect(() => {
+    cargarEquipos();
+  }, []);
+
+  const cambiarDatoEquipo = (evento) => {
+    const { name, value } = evento.target;
+    setEquipoNuevo((anterior) => ({ ...anterior, [name]: value }));
+  };
+
+  const guardarEquipo = async (evento) => {
+    evento.preventDefault();
+    setAvisoError('');
+    setEnviandoEquipo(true);
+
+    try {
+      await registrarEquipo(equipoNuevo);
+
+      setEquipoNuevo({
+        type: 'Laptop',
+        brand: '',
+        model: '',
+      });
+
+      await cargarEquipos();
+    } catch (fallo) {
+      setAvisoError(fallo.message || 'No se pudo registrar el dispositivo');
+    } finally {
+      setEnviandoEquipo(false);
+    }
+  };
+
+  return (
+    <main className="pagina-contenido">
+      <h1>Mis Dispositivos</h1>
+
+      <section className="panel-formulario">
+        <h2>Registrar dispositivo</h2>
+        <form onSubmit={guardarEquipo} className="formulario-bloque">
+          <label>
+            Tipo de dispositivo
+            <select name="type" value={equipoNuevo.type} onChange={cambiarDatoEquipo}>
+              <option value="Laptop">Laptop</option>
+              <option value="Smartphone">Smartphone</option>
+              <option value="Tablet">Tablet</option>
+              <option value="Consola">Consola</option>
+              <option value="PC Escritorio">PC Escritorio</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </label>
+
+          <label>
+            Marca
+            <input
+              type="text"
+              name="brand"
+              value={equipoNuevo.brand}
+              onChange={cambiarDatoEquipo}
+              placeholder="Ej. Acer, Samsung, Sony"
+              maxLength={100}
+              required
+            />
+          </label>
+
+          <label>
+            Modelo
+            <input
+              type="text"
+              name="model"
+              value={equipoNuevo.model}
+              onChange={cambiarDatoEquipo}
+              placeholder="Ej. Nitro 5 AN515"
+              maxLength={100}
+              required
+            />
+          </label>
+
+          {avisoError && <p className="texto-error">{avisoError}</p>}
+
+          <button type="submit" disabled={enviandoEquipo}>
+            {enviandoEquipo ? 'Registrando...' : 'Agregar dispositivo'}
+          </button>
+        </form>
+      </section>
+
+      <section className="panel-listado">
+        <h2>Equipos registrados</h2>
+        {cargandoLista ? (
+          <p>Cargando dispositivos...</p>
+        ) : listaEquipos.length === 0 ? (
+          <p>Aún no tienes dispositivos registrados.</p>
+        ) : (
+          <div className="rejilla-tarjetas">
+            {listaEquipos.map((equipo) => (
+              <article key={equipo.id} className="tarjeta-item">
+                <h3>
+                  {equipo.brand} {equipo.model}
+                </h3>
+                <p>Tipo: {equipo.type}</p>
+                <Link to={`/solicitudes?deviceId=${equipo.id}`}>Reportar falla</Link>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
+  );
+}
