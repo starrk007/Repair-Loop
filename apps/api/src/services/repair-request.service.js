@@ -46,3 +46,20 @@ export async function getRepairRequestsByClient(clientId) {
 
     return snapshot.docs.map(formatRepairRequest);
 }
+
+export async function getOpenRepairRequests() {
+    const snapshot = await db.collection('repairRequests')
+        .where('status', '==', 'open')
+        .get();
+
+    return snapshot.docs.map(document => {
+        const repairRequest = document.data();
+
+        return {
+            id: document.id,
+            description: repairRequest.description,
+            status: repairRequest.status,
+            createdAt: repairRequest.createdAt?.toDate().toISOString() ?? null
+        };
+    });
+}

@@ -1,4 +1,4 @@
-import { createRepairRequest, getRepairRequestsByClient } from '../services/repair-request.service.js';
+import { createRepairRequest, getRepairRequestsByClient, getOpenRepairRequests } from '../services/repair-request.service.js';
 
 export async function registerRepairRequest(req, res) {
     const { deviceId, description } = req.body ?? {};
@@ -61,6 +61,24 @@ export async function listRepairRequests(req, res) {
         return res.status(500).json({
             success: false,
             error: 'No se pudieron consultar las solicitudes.'
+        });
+    }
+}
+
+export async function listOpenRepairRequests(req, res) {
+    try {
+        const repairRequests = await getOpenRepairRequests();
+
+        return res.status(200).json({
+            success: true,
+            data: repairRequests
+        });
+    } catch (error) {
+        console.error('Error al consultar las solicitudes abiertas:', error.code);
+
+        return res.status(500).json({
+            success: false,
+            error: 'No se pudieron consultar las solicitudes abiertas.'
         });
     }
 }
