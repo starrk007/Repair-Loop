@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
         uid: usuario.uid,
         name: usuario.displayName || 'Usuario',
         email: usuario.email,
-        role: 'client',
+        role: 'usuario',
       });
     }
   };

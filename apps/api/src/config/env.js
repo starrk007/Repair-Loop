@@ -17,5 +17,9 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 export const env = Object.freeze({
     NODE_ENV: process.env.NODE_ENV ?? 'development',
     PORT: port,
-    API_PREFIX: process.env.API_PREFIX ?? '/api/v1'
+    API_PREFIX: process.env.API_PREFIX ?? '/api/v1',
+    CORS_ORIGINS: (process.env.CORS_ORIGINS ?? 'http://localhost:5173,http://127.0.0.1:5173')
+        .split(',')
+        .map(origin => origin.trim())
+        .filter(Boolean)
 });

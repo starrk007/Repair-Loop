@@ -23,7 +23,7 @@ export function RequestsPage() {
     description: '',
   });
 
-  const esTecnico = datosPerfil?.role === 'technician';
+  const esTecnico = datosPerfil?.role === 'tecnico';
 
   const cargarInformacion = async () => {
     setCargandoTodo(true);

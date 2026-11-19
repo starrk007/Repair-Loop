@@ -14,7 +14,7 @@ export function Navbar() {
     navegar('/acceso');
   };
 
-  const textoRol = datosPerfil?.role === 'technician' ? 'Técnico' : 'Cliente';
+  const textoRol = datosPerfil?.role === 'tecnico' ? 'Técnico' : 'Usuario';
 
   return (
     <header className="barra-superior">
@@ -25,7 +25,7 @@ export function Navbar() {
 
       <nav className="enlaces-menu">
         <Link to="/perfil">Mi Perfil</Link>
-        {datosPerfil?.role !== 'technician' && (
+        {datosPerfil?.role === 'usuario' && (
           <Link to="/dispositivos">Mis Dispositivos</Link>
         )}
         <Link to="/solicitudes">Solicitudes</Link>

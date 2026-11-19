@@ -11,7 +11,7 @@ export function AuthPage() {
     nombre: '',
     correo: '',
     clave: '',
-    rol: 'client',
+    rol: 'usuario',
   });
   const [avisoError, setAvisoError] = useState('');
   const [procesando, setProcesando] = useState(false);
@@ -109,8 +109,8 @@ export function AuthPage() {
             <label>
               Tipo de cuenta
               <select name="rol" value={cajaDatos.rol} onChange={actualizarCampo}>
-                <option value="client">Cliente</option>
-                <option value="technician">Técnico</option>
+                <option value="usuario">Usuario</option>
+                <option value="tecnico">Técnico</option>
               </select>
             </label>
           )}

@@ -21,7 +21,7 @@ export function ProfilePage() {
 
   useEffect(() => {
     const cargarDatosTecnico = async () => {
-      if (datosPerfil?.role !== 'technician') {
+      if (datosPerfil?.role !== 'tecnico') {
         return;
       }
       try {
@@ -52,8 +52,8 @@ export function ProfilePage() {
     setGuardando(true);
     try {
       await crearMiPerfil({
-        name: datosPerfil?.name || 'Usuario',
-        role: datosPerfil?.role || 'client',
+        name: datosPerfil?.name,
+        role: datosPerfil?.role,
       });
       await recargarPerfil();
       setMensajeEstado('Perfil de usuario registrado en base de datos');
@@ -90,7 +90,7 @@ export function ProfilePage() {
     }
   };
 
-  const etiquetaRol = datosPerfil?.role === 'technician' ? 'Técnico' : 'Cliente';
+  const etiquetaRol = datosPerfil?.role === 'tecnico' ? 'Técnico' : 'Usuario';
 
   return (
     <main className="pagina-contenido">
@@ -101,7 +101,7 @@ export function ProfilePage() {
         <p>Correo registrado: {datosPerfil?.email}</p>
         <p>Rol activo: {etiquetaRol}</p>
 
-        {!datosPerfil?.createdAt && (
+        {!datosPerfil?.createdAt && datosPerfil?.role && (
           <div className="formulario-bloque">
             <button type="button" onClick={sincronizarUsuario} disabled={guardando}>
               Completar registro de perfil en servidor
@@ -110,7 +110,7 @@ export function ProfilePage() {
         )}
       </section>
 
-      {datosPerfil?.role === 'technician' && (
+      {datosPerfil?.role === 'tecnico' && (
         <section className="panel-formulario">
           <h2>Perfil profesional del técnico</h2>
           <form onSubmit={enviarTaller} className="formulario-bloque">

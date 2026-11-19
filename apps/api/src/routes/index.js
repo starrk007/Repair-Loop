@@ -17,14 +17,14 @@ router.get('/auth/me', requireAuth, getCurrentUser);
 router.post('/users/me', requireAuth, createProfile);
 router.get('/users/me', requireAuth, getProfile);
 
-router.post('/devices', requireAuth, requireRole('client'), registerDevice);
-router.get('/devices', requireAuth, requireRole('client'), listDevices);
+router.post('/devices', requireAuth, requireRole('usuario'), registerDevice);
+router.get('/devices', requireAuth, requireRole('usuario'), listDevices);
 
-router.post('/repair-requests', requireAuth, requireRole('client'), registerRepairRequest);
-router.get('/repair-requests', requireAuth, requireRole('client'), listRepairRequests);
+router.post('/repair-requests', requireAuth, requireRole('usuario'), registerRepairRequest);
+router.get('/repair-requests', requireAuth, requireRole('usuario'), listRepairRequests);
 
-router.post('/technicians/me', requireAuth, requireRole('technician'), registerTechnicianProfile);
-router.get('/technicians/me', requireAuth, requireRole('technician'), getMyTechnicianProfile);
-router.get('/repair-requests/open', requireAuth, requireRole('technician'), listOpenRepairRequests);
+router.post('/technicians/me', requireAuth, requireRole('tecnico'), registerTechnicianProfile);
+router.get('/technicians/me', requireAuth, requireRole('tecnico'), getMyTechnicianProfile);
+router.get('/repair-requests/open', requireAuth, requireRole('tecnico'), listOpenRepairRequests);
 
 export default router;

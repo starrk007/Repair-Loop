@@ -1,6 +1,6 @@
 import { auth } from '../config/firebase';
 
-const rutaServidor = import.meta.env.VITE_API_URL || '/api/v1';
+const rutaServidor = (import.meta.env.VITE_API_URL || '/api/v1').replace(/\/$/, '');
 
 export async function mandarPeticion(ruta, configuracion = {}) {
   const usuarioActual = auth.currentUser;

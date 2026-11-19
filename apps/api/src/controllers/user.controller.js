@@ -15,10 +15,10 @@ export async function createProfile(req, res) {
         });
     }
 
-    if (!['client', 'technician'].includes(role)) {
+    if (!['usuario', 'tecnico'].includes(role)) {
         return res.status(422).json({
             success: false,
-            error: 'El rol debe ser client o technician.'
+            error: 'El rol debe ser usuario o tecnico.'
         });
     }
 
