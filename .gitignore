@@ -12,5 +12,3 @@ dist/
 .vscode/
 .DS_Store
 Thumbs.db
-
-apps/api/credentials/
