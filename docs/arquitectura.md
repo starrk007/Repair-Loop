@@ -1,13 +1,14 @@
 # Arquitectura
 
-```mermaid
-flowchart LR
-    Usuario[Usuario o técnico] --> Web[React y Vite]
-    Web --> Firebase[Firebase Authentication]
-    Web -->|Authorization: Bearer ID token| API[API Node.js y Express]
-    API --> Admin[Firebase Admin]
-    Admin --> Firestore[(Cloud Firestore)]
-```
+## Flujo general
+
+El frontend web consulta la API mediante HTTP. La API verifica al usuario con Firebase Admin y lee o escribe los datos en Firestore.
+
+- React y Vite muestran las vistas.
+- Firebase Authentication registra e inicia sesión.
+- Node.js y Express reciben las solicitudes.
+- Firebase Admin valida el ID token.
+- Cloud Firestore almacena perfiles, dispositivos y solicitudes.
 
 ## Frontend
 

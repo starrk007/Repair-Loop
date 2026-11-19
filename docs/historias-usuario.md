@@ -1,6 +1,6 @@
 # Historias de usuario
 
-## HU-01. Registrar una cuenta
+## 1. Registrar una cuenta
 
 Como persona que necesita reparación, quiero crear una cuenta, para usar RepairLoop.
 
@@ -10,7 +10,7 @@ Criterios de aceptación:
 - Firebase crea la cuenta.
 - La API crea el perfil con `POST /api/v1/users/me`.
 
-## HU-02. Iniciar sesión
+## 2. Iniciar sesión
 
 Como usuario registrado, quiero iniciar sesión, para consultar mi perfil y mis datos.
 
@@ -20,7 +20,7 @@ Criterios de aceptación:
 - La aplicación consulta `GET /api/v1/users/me`.
 - Las solicitudes protegidas envían el ID token en `Authorization: Bearer`.
 
-## HU-03. Consultar el perfil
+## 3. Consultar el perfil
 
 Como usuario autenticado, quiero ver mi nombre, correo y rol, para confirmar mi cuenta.
 
@@ -30,7 +30,7 @@ Criterios de aceptación:
 - `usuario` se muestra como “Usuario”.
 - `tecnico` se muestra como “Técnico”.
 
-## HU-04. Registrar dispositivos
+## 4. Registrar dispositivos
 
 Como usuario, quiero registrar mis dispositivos, para relacionarlos con una reparación.
 
@@ -40,7 +40,7 @@ Criterios de aceptación:
 - Consulta el listado con `GET /api/v1/devices`.
 - Solo muestra dispositivos cuyo `ownerId` sea el UID autenticado.
 
-## HU-05. Gestionar solicitudes
+## 5. Gestionar solicitudes
 
 Como usuario, quiero crear y consultar solicitudes de reparación, para dar seguimiento a mis equipos.
 
