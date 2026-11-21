@@ -19,11 +19,11 @@ export function RequestsPage() {
   const [avisoError, setAvisoError] = useState('');
 
   const [pedidoNuevo, setPedidoNuevo] = useState({
-    deviceId: parametrosUrl.get('deviceId') || '',
-    description: '',
+    dispositivoId: parametrosUrl.get('dispositivoId') || '',
+    descripcion: '',
   });
 
-  const esTecnico = datosPerfil?.role === 'tecnico';
+  const esTecnico = datosPerfil?.rol === 'tecnico';
 
   const cargarInformacion = async () => {
     setCargandoTodo(true);
@@ -42,10 +42,10 @@ export function RequestsPage() {
         const listaEq = Array.isArray(equiposCliente) ? equiposCliente : [];
         setMisEquipos(listaEq);
 
-        if (!pedidoNuevo.deviceId && listaEq.length > 0) {
+        if (!pedidoNuevo.dispositivoId && listaEq.length > 0) {
           setPedidoNuevo((anterior) => ({
             ...anterior,
-            deviceId: listaEq[0].id,
+            dispositivoId: listaEq[0].id,
           }));
         }
       }
@@ -57,10 +57,10 @@ export function RequestsPage() {
   };
 
   useEffect(() => {
-    if (datosPerfil?.role) {
+    if (datosPerfil?.rol) {
       cargarInformacion();
     }
-  }, [datosPerfil?.role]);
+  }, [datosPerfil?.rol]);
 
   const cambiarDatoPedido = (evento) => {
     const { name, value } = evento.target;
@@ -74,12 +74,12 @@ export function RequestsPage() {
 
     try {
       await crearSolicitud({
-        deviceId: pedidoNuevo.deviceId,
-        description: pedidoNuevo.description,
+        dispositivoId: pedidoNuevo.dispositivoId,
+        descripcion: pedidoNuevo.descripcion,
       });
       setPedidoNuevo((anterior) => ({
         ...anterior,
-        description: '',
+        descripcion: '',
       }));
       await cargarInformacion();
     } catch (fallo) {
@@ -103,14 +103,14 @@ export function RequestsPage() {
               <label>
                 Dispositivo afectado
                 <select
-                  name="deviceId"
-                  value={pedidoNuevo.deviceId}
+                  name="dispositivoId"
+                  value={pedidoNuevo.dispositivoId}
                   onChange={cambiarDatoPedido}
                   required
                 >
                   {misEquipos.map((equipo) => (
                     <option key={equipo.id} value={equipo.id}>
-                      {equipo.brand} {equipo.model} ({equipo.type})
+                      {equipo.marca} {equipo.modelo} ({equipo.tipo})
                     </option>
                   ))}
                 </select>
@@ -119,8 +119,8 @@ export function RequestsPage() {
               <label>
                 Descripción detallada de la falla (mínimo 10 caracteres)
                 <textarea
-                  name="description"
-                  value={pedidoNuevo.description}
+                  name="descripcion"
+                  value={pedidoNuevo.descripcion}
                   onChange={cambiarDatoPedido}
                   minLength={10}
                   maxLength={2000}
@@ -157,10 +157,10 @@ export function RequestsPage() {
               <article key={pedido.id} className="tarjeta-item">
                 <div className="cabecera-tarjeta">
                   <h3>Solicitud #{pedido.id.slice(0, 6)}</h3>
-                  <span className="etiqueta-estado">{pedido.status || 'open'}</span>
+                  <span className="etiqueta-estado">{pedido.estado || 'abierta'}</span>
                 </div>
-                <p>{pedido.description}</p>
-                <p>Dispositivo ID: {pedido.deviceId}</p>
+                <p>{pedido.descripcion}</p>
+                <p>Dispositivo ID: {pedido.dispositivoId}</p>
               </article>
             ))}
           </div>

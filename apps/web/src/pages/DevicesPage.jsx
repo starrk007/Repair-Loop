@@ -9,9 +9,9 @@ export function DevicesPage() {
   const [avisoError, setAvisoError] = useState('');
 
   const [equipoNuevo, setEquipoNuevo] = useState({
-    type: 'Laptop',
-    brand: '',
-    model: '',
+    tipo: 'Laptop',
+    marca: '',
+    modelo: '',
   });
 
   const cargarEquipos = async () => {
@@ -45,9 +45,9 @@ export function DevicesPage() {
       await registrarEquipo(equipoNuevo);
 
       setEquipoNuevo({
-        type: 'Laptop',
-        brand: '',
-        model: '',
+        tipo: 'Laptop',
+        marca: '',
+        modelo: '',
       });
 
       await cargarEquipos();
@@ -67,7 +67,7 @@ export function DevicesPage() {
         <form onSubmit={guardarEquipo} className="formulario-bloque">
           <label>
             Tipo de dispositivo
-            <select name="type" value={equipoNuevo.type} onChange={cambiarDatoEquipo}>
+            <select name="tipo" value={equipoNuevo.tipo} onChange={cambiarDatoEquipo}>
               <option value="Laptop">Laptop</option>
               <option value="Smartphone">Smartphone</option>
               <option value="Tablet">Tablet</option>
@@ -81,8 +81,8 @@ export function DevicesPage() {
             Marca
             <input
               type="text"
-              name="brand"
-              value={equipoNuevo.brand}
+              name="marca"
+              value={equipoNuevo.marca}
               onChange={cambiarDatoEquipo}
               placeholder="Ej. Acer, Samsung, Sony"
               maxLength={100}
@@ -94,8 +94,8 @@ export function DevicesPage() {
             Modelo
             <input
               type="text"
-              name="model"
-              value={equipoNuevo.model}
+              name="modelo"
+              value={equipoNuevo.modelo}
               onChange={cambiarDatoEquipo}
               placeholder="Ej. Nitro 5 AN515"
               maxLength={100}
@@ -122,10 +122,10 @@ export function DevicesPage() {
             {listaEquipos.map((equipo) => (
               <article key={equipo.id} className="tarjeta-item">
                 <h3>
-                  {equipo.brand} {equipo.model}
+                  {equipo.marca} {equipo.modelo}
                 </h3>
-                <p>Tipo: {equipo.type}</p>
-                <Link to={`/solicitudes?deviceId=${equipo.id}`}>Reportar falla</Link>
+                <p>Tipo: {equipo.tipo}</p>
+                <Link to={`/solicitudes?dispositivoId=${equipo.id}`}>Reportar falla</Link>
               </article>
             ))}
           </div>

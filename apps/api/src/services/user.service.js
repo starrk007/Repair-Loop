@@ -1,33 +1,33 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { db } from '../config/firebase.js';
 
-export async function createUserProfile(uid, email, name, role) {
-    const userRef = db.collection('users').doc(uid);
+export async function crearPerfilUsuario(uid, correo, nombre, rol) {
+    const referenciaUsuario = db.collection('usuarios').doc(uid);
 
-    await userRef.create({
-        name,
-        email,
-        role,
-        createdAt: FieldValue.serverTimestamp()
+    await referenciaUsuario.create({
+        nombre,
+        correo,
+        rol,
+        fechaCreacion: FieldValue.serverTimestamp()
     });
 
-    return getUserProfile(uid);
+    return obtenerPerfilUsuario(uid);
 }
 
-export async function getUserProfile(uid) {
-    const document = await db.collection('users').doc(uid).get();
+export async function obtenerPerfilUsuario(uid) {
+    const documento = await db.collection('usuarios').doc(uid).get();
 
-    if (!document.exists) {
+    if (!documento.exists) {
         return null;
     }
 
-    const user = document.data();
+    const usuario = documento.data();
 
     return {
-        uid: document.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        createdAt: user.createdAt?.toDate().toISOString() ?? null
+        uid: documento.id,
+        nombre: usuario.nombre,
+        correo: usuario.correo,
+        rol: usuario.rol,
+        fechaCreacion: usuario.fechaCreacion?.toDate().toISOString() ?? null
     };
 }

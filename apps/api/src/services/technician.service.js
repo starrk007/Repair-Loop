@@ -1,31 +1,31 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { db } from '../config/firebase.js';
 
-export async function createTechnicianProfile(uid, data) {
-    const profileRef = db.collection('technicianProfiles').doc(uid);
+export async function crearPerfilTecnico(uid, datos) {
+    const referenciaPerfil = db.collection('perfilesTecnicos').doc(uid);
 
-    await profileRef.create({
-        description: data.description,
-        services: data.services,
-        createdAt: FieldValue.serverTimestamp()
+    await referenciaPerfil.create({
+        descripcion: datos.descripcion,
+        servicios: datos.servicios,
+        fechaCreacion: FieldValue.serverTimestamp()
     });
 
-    return getTechnicianProfile(uid);
+    return obtenerPerfilTecnico(uid);
 }
 
-export async function getTechnicianProfile(uid) {
-    const document = await db.collection('technicianProfiles').doc(uid).get();
+export async function obtenerPerfilTecnico(uid) {
+    const documento = await db.collection('perfilesTecnicos').doc(uid).get();
 
-    if (!document.exists) {
+    if (!documento.exists) {
         return null;
     }
 
-    const profile = document.data();
+    const perfil = documento.data();
 
     return {
-        uid: document.id,
-        description: profile.description,
-        services: profile.services,
-        createdAt: profile.createdAt?.toDate().toISOString() ?? null
+        uid: documento.id,
+        descripcion: perfil.descripcion,
+        servicios: perfil.servicios,
+        fechaCreacion: perfil.fechaCreacion?.toDate().toISOString() ?? null
     };
 }
