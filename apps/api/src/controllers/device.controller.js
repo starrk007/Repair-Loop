@@ -1,38 +1,38 @@
 import {
-    createDevice,
-    getDevicesByOwner
+    crearDispositivo,
+    obtenerDispositivosPorPropietario
 } from '../services/device.service.js';
 
-export async function registerDevice(req, res) {
-    const { type, brand, model } = req.body ?? {};
+export async function registrarDispositivo(req, res) {
+    const { tipo, marca, modelo } = req.body ?? {};
 
-    const fields = [
-        { value: type, label: 'tipo' },
-        { value: brand, label: 'marca' },
-        { value: model, label: 'modelo' }
+    const campos = [
+        { valor: tipo, etiqueta: 'tipo' },
+        { valor: marca, etiqueta: 'marca' },
+        { valor: modelo, etiqueta: 'modelo' }
     ];
 
-    for (const field of fields) {
-        if (typeof field.value !== 'string' ||
-            field.value.trim().length < 1 ||
-            field.value.trim().length > 100) {
+    for (const campo of campos) {
+        if (typeof campo.valor !== 'string' ||
+            campo.valor.trim().length < 1 ||
+            campo.valor.trim().length > 100) {
             return res.status(422).json({
                 success: false,
-                error: `El campo ${field.label} debe tener entre 1 y 100 caracteres.`
+                error: `El campo ${campo.etiqueta} debe tener entre 1 y 100 caracteres.`
             });
         }
     }
 
     try {
-        const device = await createDevice(req.auth.uid, {
-            type: type.trim(),
-            brand: brand.trim(),
-            model: model.trim()
+        const dispositivo = await crearDispositivo(req.auth.uid, {
+            tipo: tipo.trim(),
+            marca: marca.trim(),
+            modelo: modelo.trim()
         });
 
         return res.status(201).json({
             success: true,
-            data: device
+            data: dispositivo
         });
     } catch (error) {
         console.error('Error al registrar el dispositivo:', error.code);
@@ -44,13 +44,13 @@ export async function registerDevice(req, res) {
     }
 }
 
-export async function listDevices(req, res) {
+export async function listarDispositivos(req, res) {
     try {
-        const devices = await getDevicesByOwner(req.auth.uid);
+        const dispositivos = await obtenerDispositivosPorPropietario(req.auth.uid);
 
         return res.status(200).json({
             success: true,
-            data: devices
+            data: dispositivos
         });
     } catch (error) {
         console.error('Error al consultar los dispositivos:', error.code);

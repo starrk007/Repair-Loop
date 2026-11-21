@@ -1,30 +1,30 @@
 import { Router } from 'express';
-import { getHealth } from '../controllers/health.controller.js';
-import { getCurrentUser } from '../controllers/auth.controller.js';
-import { createProfile, getProfile } from '../controllers/user.controller.js';
-import { registerDevice, listDevices } from '../controllers/device.controller.js';
-import { requireAuth } from '../middleware/auth.middleware.js';
-import { requireRole } from '../middleware/role.middleware.js';
-import { registerRepairRequest, listRepairRequests, listOpenRepairRequests } from '../controllers/repair-request.controller.js';
-import { registerTechnicianProfile, getMyTechnicianProfile } from '../controllers/technician.controller.js';
+import { obtenerSalud } from '../controllers/health.controller.js';
+import { obtenerUsuarioActual } from '../controllers/auth.controller.js';
+import { crearPerfil, obtenerPerfil } from '../controllers/user.controller.js';
+import { registrarDispositivo, listarDispositivos } from '../controllers/device.controller.js';
+import { requerirAutenticacion } from '../middleware/auth.middleware.js';
+import { requerirRol } from '../middleware/role.middleware.js';
+import { registrarSolicitud, listarSolicitudes, listarSolicitudesAbiertas } from '../controllers/repair-request.controller.js';
+import { registrarPerfilTecnico, obtenerMiPerfilTecnico } from '../controllers/technician.controller.js';
 
 const router = Router();
 
-router.get('/health', getHealth);
+router.get('/health', obtenerSalud);
 
-router.get('/auth/me', requireAuth, getCurrentUser);
+router.get('/auth/me', requerirAutenticacion, obtenerUsuarioActual);
 
-router.post('/users/me', requireAuth, createProfile);
-router.get('/users/me', requireAuth, getProfile);
+router.post('/users/me', requerirAutenticacion, crearPerfil);
+router.get('/users/me', requerirAutenticacion, obtenerPerfil);
 
-router.post('/devices', requireAuth, requireRole('usuario'), registerDevice);
-router.get('/devices', requireAuth, requireRole('usuario'), listDevices);
+router.post('/devices', requerirAutenticacion, requerirRol('usuario'), registrarDispositivo);
+router.get('/devices', requerirAutenticacion, requerirRol('usuario'), listarDispositivos);
 
-router.post('/repair-requests', requireAuth, requireRole('usuario'), registerRepairRequest);
-router.get('/repair-requests', requireAuth, requireRole('usuario'), listRepairRequests);
+router.post('/repair-requests', requerirAutenticacion, requerirRol('usuario'), registrarSolicitud);
+router.get('/repair-requests', requerirAutenticacion, requerirRol('usuario'), listarSolicitudes);
 
-router.post('/technicians/me', requireAuth, requireRole('tecnico'), registerTechnicianProfile);
-router.get('/technicians/me', requireAuth, requireRole('tecnico'), getMyTechnicianProfile);
-router.get('/repair-requests/open', requireAuth, requireRole('tecnico'), listOpenRepairRequests);
+router.post('/technicians/me', requerirAutenticacion, requerirRol('tecnico'), registrarPerfilTecnico);
+router.get('/technicians/me', requerirAutenticacion, requerirRol('tecnico'), obtenerMiPerfilTecnico);
+router.get('/repair-requests/open', requerirAutenticacion, requerirRol('tecnico'), listarSolicitudesAbiertas);
 
 export default router;

@@ -1,25 +1,25 @@
-import { getUserProfile } from '../services/user.service.js';
+import { obtenerPerfilUsuario } from '../services/user.service.js';
 
-export function requireRole(...allowedRoles) {
+export function requerirRol(...rolesPermitidos) {
     return async function (req, res, next) {
         try {
-            const user = await getUserProfile(req.auth.uid);
+            const usuario = await obtenerPerfilUsuario(req.auth.uid);
 
-            if (!user) {
+            if (!usuario) {
                 return res.status(403).json({
                     success: false,
                     error: 'Debes completar tu perfil para continuar.'
                 });
             }
 
-            if (!allowedRoles.includes(user.role)) {
+            if (!rolesPermitidos.includes(usuario.rol)) {
                 return res.status(403).json({
                     success: false,
                     error: 'No tienes permisos para realizar esta operación.'
                 });
             }
 
-            req.user = user;
+            req.user = usuario;
         } catch (error) {
             console.error('Error al consultar los permisos:', error.code);
 

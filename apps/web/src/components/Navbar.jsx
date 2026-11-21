@@ -14,7 +14,7 @@ export function Navbar() {
     navegar('/acceso');
   };
 
-  const textoRol = datosPerfil?.role === 'tecnico' ? 'Técnico' : 'Usuario';
+  const textoRol = datosPerfil?.rol === 'tecnico' ? 'Técnico' : 'Usuario';
 
   return (
     <header className="barra-superior">
@@ -25,14 +25,14 @@ export function Navbar() {
 
       <nav className="enlaces-menu">
         <Link to="/perfil">Mi Perfil</Link>
-        {datosPerfil?.role === 'usuario' && (
+        {datosPerfil?.rol === 'usuario' && (
           <Link to="/dispositivos">Mis Dispositivos</Link>
         )}
         <Link to="/solicitudes">Solicitudes</Link>
       </nav>
 
       <div className="zona-usuario">
-        <span>{datosPerfil?.name || cuentaFirebase.email}</span>
+        <span>{datosPerfil?.nombre || cuentaFirebase.email}</span>
         <button type="button" onClick={salirDeCuenta}>
           Salir
         </button>

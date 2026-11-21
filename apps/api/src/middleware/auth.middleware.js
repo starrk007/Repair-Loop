@@ -1,22 +1,22 @@
 import { auth } from '../config/firebase.js';
 
-export async function requireAuth(req, res, next) {
-    const authorization = req.get('Authorization') ?? '';
-    const match = authorization.match(/^Bearer\s+(\S+)$/i);
+export async function requerirAutenticacion(req, res, next) {
+    const autorizacion = req.get('Authorization') ?? '';
+    const coincidencia = autorizacion.match(/^Bearer\s+(\S+)$/i);
 
-    if (!match) {
+    if (!coincidencia) {
         return res.status(401).json({
             success: false,
             error: 'Debes iniciar sesión para realizar esta operación.'
         });
     }
 
-    const token = match[1];
+    const token = coincidencia[1];
 
     try {
         req.auth = await auth.verifyIdToken(token, true);
     } catch (error) {
-        const invalidTokenCodes = [
+        const codigosTokenInvalido = [
             'auth/argument-error',
             'auth/invalid-id-token',
             'auth/id-token-expired',
@@ -25,7 +25,7 @@ export async function requireAuth(req, res, next) {
             'auth/user-not-found'
         ];
 
-        if (invalidTokenCodes.includes(error.code)) {
+        if (codigosTokenInvalido.includes(error.code)) {
             return res.status(401).json({
                 success: false,
                 error: 'La sesión no es válida. Inicia sesión nuevamente.'

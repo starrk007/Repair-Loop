@@ -1,65 +1,56 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { db } from '../config/firebase.js';
 
-function formatRepairRequest(document) {
-    const repairRequest = document.data();
+function formatearSolicitud(documento) {
+    const solicitud = documento.data();
 
     return {
-        id: document.id,
-        clientId: repairRequest.clientId,
-        deviceId: repairRequest.deviceId,
-        description: repairRequest.description,
-        status: repairRequest.status,
-        createdAt: repairRequest.createdAt?.toDate().toISOString() ?? null
+        id: documento.id,
+        usuarioId: solicitud.usuarioId,
+        dispositivoId: solicitud.dispositivoId,
+        descripcion: solicitud.descripcion,
+        estado: solicitud.estado,
+        fechaCreacion: solicitud.fechaCreacion?.toDate().toISOString() ?? null
     };
 }
 
-export async function createRepairRequest(clientId, data) {
-    const deviceDocument = await db.collection('devices')
-        .doc(data.deviceId)
+export async function crearSolicitudReparacion(usuarioId, datos) {
+    const documentoDispositivo = await db.collection('dispositivos')
+        .doc(datos.dispositivoId)
         .get();
 
-    if (!deviceDocument.exists ||
-        deviceDocument.data().ownerId !== clientId) {
+    if (!documentoDispositivo.exists ||
+        documentoDispositivo.data().propietarioId !== usuarioId) {
         return null;
     }
 
-    const requestRef = db.collection('repairRequests').doc();
+    const referenciaSolicitud = db.collection('solicitudesReparacion').doc();
 
-    await requestRef.create({
-        clientId,
-        deviceId: deviceDocument.id,
-        description: data.description,
-        status: 'open',
-        createdAt: FieldValue.serverTimestamp()
+    await referenciaSolicitud.create({
+        usuarioId,
+        dispositivoId: documentoDispositivo.id,
+        descripcion: datos.descripcion,
+        estado: 'abierta',
+        fechaCreacion: FieldValue.serverTimestamp()
     });
 
-    const document = await requestRef.get();
+    const documento = await referenciaSolicitud.get();
 
-    return formatRepairRequest(document);
+    return formatearSolicitud(documento);
 }
 
-export async function getRepairRequestsByClient(clientId) {
-    const snapshot = await db.collection('repairRequests')
-        .where('clientId', '==', clientId)
+export async function obtenerSolicitudesPorUsuario(usuarioId) {
+    const consulta = await db.collection('solicitudesReparacion')
+        .where('usuarioId', '==', usuarioId)
         .get();
 
-    return snapshot.docs.map(formatRepairRequest);
+    return consulta.docs.map(formatearSolicitud);
 }
 
-export async function getOpenRepairRequests() {
-    const snapshot = await db.collection('repairRequests')
-        .where('status', '==', 'open')
+export async function obtenerSolicitudesAbiertas() {
+    const consulta = await db.collection('solicitudesReparacion')
+        .where('estado', '==', 'abierta')
         .get();
 
-    return snapshot.docs.map(document => {
-        const repairRequest = document.data();
-
-        return {
-            id: document.id,
-            description: repairRequest.description,
-            status: repairRequest.status,
-            createdAt: repairRequest.createdAt?.toDate().toISOString() ?? null
-        };
-    });
+    return consulta.docs.map(formatearSolicitud);
 }
