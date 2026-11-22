@@ -5,8 +5,9 @@ import { crearPerfil, obtenerPerfil } from '../controllers/user.controller.js';
 import { registrarDispositivo, listarDispositivos } from '../controllers/device.controller.js';
 import { requerirAutenticacion } from '../middleware/auth.middleware.js';
 import { requerirRol } from '../middleware/role.middleware.js';
-import { registrarSolicitud, listarSolicitudes, listarSolicitudesAbiertas } from '../controllers/repair-request.controller.js';
+import { registrarSolicitud, listarSolicitudes, listarSolicitudesAbiertas, consultarSolicitud, editarSolicitud, borrarSolicitud } from '../controllers/repair-request.controller.js';
 import { registrarPerfilTecnico, obtenerMiPerfilTecnico } from '../controllers/technician.controller.js';
+import { registrarCotizacion, listarCotizacionesDeSolicitud, listarMisCotizaciones, consultarCotizacion } from '../controllers/quote.controller.js';
 
 const router = Router();
 
@@ -22,9 +23,17 @@ router.get('/devices', requerirAutenticacion, requerirRol('usuario'), listarDisp
 
 router.post('/repair-requests', requerirAutenticacion, requerirRol('usuario'), registrarSolicitud);
 router.get('/repair-requests', requerirAutenticacion, requerirRol('usuario'), listarSolicitudes);
+router.get('/repair-requests/open', requerirAutenticacion, requerirRol('tecnico'), listarSolicitudesAbiertas);
+router.get('/repair-requests/:solicitudId', requerirAutenticacion, requerirRol('usuario', 'tecnico'), consultarSolicitud);
+router.patch('/repair-requests/:solicitudId', requerirAutenticacion, requerirRol('usuario'), editarSolicitud);
+router.delete('/repair-requests/:solicitudId', requerirAutenticacion, requerirRol('usuario'), borrarSolicitud);
+
+router.post('/repair-requests/:solicitudId/quotes', requerirAutenticacion, requerirRol('tecnico'), registrarCotizacion);
+router.get('/repair-requests/:solicitudId/quotes', requerirAutenticacion, requerirRol('usuario'), listarCotizacionesDeSolicitud);
+router.get('/quotes', requerirAutenticacion, requerirRol('tecnico'), listarMisCotizaciones);
+router.get('/quotes/:cotizacionId', requerirAutenticacion, requerirRol('usuario', 'tecnico'), consultarCotizacion);
 
 router.post('/technicians/me', requerirAutenticacion, requerirRol('tecnico'), registrarPerfilTecnico);
 router.get('/technicians/me', requerirAutenticacion, requerirRol('tecnico'), obtenerMiPerfilTecnico);
-router.get('/repair-requests/open', requerirAutenticacion, requerirRol('tecnico'), listarSolicitudesAbiertas);
 
 export default router;

@@ -13,7 +13,7 @@ app.use((req, res, next) => {
         res.set('Vary', 'Origin');
     }
     res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type');
-    res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
 
     if (req.method === 'OPTIONS') {
         return res.sendStatus(204);
