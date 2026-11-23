@@ -1,7 +1,11 @@
 import {
     crearDispositivo,
-    obtenerDispositivosPorPropietario
+    obtenerDispositivosPorPropietario,
+    establecerPrecioReemplazo
 } from '../services/device.service.js';
+import { identificadorValido } from '../validation/identifiers.js';
+import { validarPrecioReemplazo } from '../validation/money.validation.js';
+import { responderError } from '../errors/domain.error.js';
 
 export async function registrarDispositivo(req, res) {
     const { tipo, marca, modelo } = req.body ?? {};
@@ -23,11 +27,21 @@ export async function registrarDispositivo(req, res) {
         }
     }
 
+    let precioReemplazo;
+    if (req.body?.precioReemplazo !== undefined) {
+        try {
+            precioReemplazo = validarPrecioReemplazo(req.body.precioReemplazo);
+        } catch (error) {
+            return responderError(res, error, 'Error al validar el precio de reemplazo:');
+        }
+    }
+
     try {
         const dispositivo = await crearDispositivo(req.auth.uid, {
             tipo: tipo.trim(),
             marca: marca.trim(),
-            modelo: modelo.trim()
+            modelo: modelo.trim(),
+            precioReemplazo
         });
 
         return res.status(201).json({
@@ -41,6 +55,35 @@ export async function registrarDispositivo(req, res) {
             success: false,
             error: 'No se pudo registrar el dispositivo.'
         });
+    }
+}
+
+export async function actualizarPrecioReemplazo(req, res) {
+    if (!identificadorValido(req.params.dispositivoId) ||
+        !req.body || Object.keys(req.body).length !== 1 ||
+        !Object.prototype.hasOwnProperty.call(req.body, 'precioReemplazo')) {
+        return res.status(422).json({
+            success: false,
+            error: 'Solo puedes establecer un precio de reemplazo válido.'
+        });
+    }
+
+    try {
+        const precioReemplazo = validarPrecioReemplazo(req.body.precioReemplazo);
+        const dispositivo = await establecerPrecioReemplazo(
+            req.params.dispositivoId,
+            req.auth.uid,
+            precioReemplazo
+        );
+        if (dispositivo === null) {
+            return res.status(404).json({ success: false, error: 'No se encontró el dispositivo.' });
+        }
+        if (dispositivo === false) {
+            return res.status(403).json({ success: false, error: 'No tienes permisos para modificar este dispositivo.' });
+        }
+        return res.status(200).json({ success: true, data: dispositivo });
+    } catch (error) {
+        return responderError(res, error, 'Error al actualizar el precio de reemplazo:');
     }
 }
 
