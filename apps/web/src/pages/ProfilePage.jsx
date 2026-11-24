@@ -52,8 +52,8 @@ export function ProfilePage() {
     setGuardando(true);
     try {
       await crearMiPerfil({
-        nombre: datosPerfil?.nombre,
-        rol: datosPerfil?.rol,
+        nombre: datosPerfil?.nombre || 'Usuario',
+        rol: datosPerfil?.rol || 'usuario',
       });
       await recargarPerfil();
       setMensajeEstado('Perfil de usuario registrado en base de datos');
@@ -90,7 +90,7 @@ export function ProfilePage() {
     }
   };
 
-  const etiquetaRol = datosPerfil?.rol === 'tecnico' ? 'Técnico' : 'Usuario';
+  const etiquetaRol = datosPerfil?.rol === 'tecnico' ? 'Técnico' : 'Cliente';
 
   return (
     <main className="pagina-contenido">
@@ -101,7 +101,7 @@ export function ProfilePage() {
         <p>Correo registrado: {datosPerfil?.correo}</p>
         <p>Rol activo: {etiquetaRol}</p>
 
-        {!datosPerfil?.fechaCreacion && datosPerfil?.rol && (
+        {!datosPerfil?.fechaCreacion && (
           <div className="formulario-bloque">
             <button type="button" onClick={sincronizarUsuario} disabled={guardando}>
               Completar registro de perfil en servidor

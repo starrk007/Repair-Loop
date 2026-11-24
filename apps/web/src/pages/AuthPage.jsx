@@ -109,7 +109,7 @@ export function AuthPage() {
             <label>
               Tipo de cuenta
               <select name="rol" value={cajaDatos.rol} onChange={actualizarCampo}>
-                <option value="usuario">Usuario</option>
+                <option value="usuario">Cliente</option>
                 <option value="tecnico">Técnico</option>
               </select>
             </label>

@@ -1,17 +1,24 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { listarMisEquipos, registrarEquipo } from '../services/devicesService';
+import {
+  cambiarPrecioReemplazo,
+  listarMisEquipos,
+  registrarEquipo,
+} from '../services/devicesService';
 
 export function DevicesPage() {
   const [listaEquipos, setListaEquipos] = useState([]);
   const [cargandoLista, setCargandoLista] = useState(true);
   const [enviandoEquipo, setEnviandoEquipo] = useState(false);
   const [avisoError, setAvisoError] = useState('');
+  const [mensajeEstado, setMensajeEstado] = useState('');
+  const [preciosEditados, setPreciosEditados] = useState({});
 
   const [equipoNuevo, setEquipoNuevo] = useState({
     tipo: 'Laptop',
     marca: '',
     modelo: '',
+    precioReemplazo: '',
   });
 
   const cargarEquipos = async () => {
@@ -19,7 +26,13 @@ export function DevicesPage() {
     setAvisoError('');
     try {
       const equipos = await listarMisEquipos();
-      setListaEquipos(Array.isArray(equipos) ? equipos : []);
+      const lista = Array.isArray(equipos) ? equipos : [];
+      setListaEquipos(lista);
+      const mapaPrecios = {};
+      lista.forEach((eq) => {
+        mapaPrecios[eq.id] = eq.precioReemplazo ?? '';
+      });
+      setPreciosEditados(mapaPrecios);
     } catch (fallo) {
       setAvisoError(fallo.message || 'Error al cargar dispositivos');
     } finally {
@@ -39,22 +52,48 @@ export function DevicesPage() {
   const guardarEquipo = async (evento) => {
     evento.preventDefault();
     setAvisoError('');
+    setMensajeEstado('');
     setEnviandoEquipo(true);
 
     try {
-      await registrarEquipo(equipoNuevo);
+      const cuerpo = {
+        tipo: equipoNuevo.tipo,
+        marca: equipoNuevo.marca,
+        modelo: equipoNuevo.modelo,
+        ...(equipoNuevo.precioReemplazo !== ''
+          ? { precioReemplazo: Number(equipoNuevo.precioReemplazo) }
+          : {}),
+      };
+
+      await registrarEquipo(cuerpo);
 
       setEquipoNuevo({
         tipo: 'Laptop',
         marca: '',
         modelo: '',
+        precioReemplazo: '',
       });
 
+      setMensajeEstado('Dispositivo registrado correctamente');
       await cargarEquipos();
     } catch (fallo) {
       setAvisoError(fallo.message || 'No se pudo registrar el dispositivo');
     } finally {
       setEnviandoEquipo(false);
+    }
+  };
+
+  const actualizarPrecioEquipo = async (dispositivoId) => {
+    setAvisoError('');
+    setMensajeEstado('');
+    const valorNumerico = Number(preciosEditados[dispositivoId]);
+
+    try {
+      await cambiarPrecioReemplazo(dispositivoId, valorNumerico);
+      setMensajeEstado('Precio de referencia actualizado');
+      await cargarEquipos();
+    } catch (fallo) {
+      setAvisoError(fallo.message || 'No se pudo actualizar el precio de reemplazo');
     }
   };
 
@@ -103,7 +142,21 @@ export function DevicesPage() {
             />
           </label>
 
+          <label>
+            Precio de referencia de reemplazo (MXN, opcional)
+            <input
+              type="number"
+              name="precioReemplazo"
+              value={equipoNuevo.precioReemplazo}
+              onChange={cambiarDatoEquipo}
+              min="0.01"
+              step="0.01"
+              placeholder="Ej. 18500"
+            />
+          </label>
+
           {avisoError && <p className="texto-error">{avisoError}</p>}
+          {mensajeEstado && <p className="texto-exito">{mensajeEstado}</p>}
 
           <button type="submit" disabled={enviandoEquipo}>
             {enviandoEquipo ? 'Registrando...' : 'Agregar dispositivo'}
@@ -125,6 +178,36 @@ export function DevicesPage() {
                   {equipo.marca} {equipo.modelo}
                 </h3>
                 <p>Tipo: {equipo.tipo}</p>
+                <p>
+                  Precio de reemplazo:{' '}
+                  {equipo.precioReemplazo !== null
+                    ? `$${equipo.precioReemplazo.toFixed(2)}`
+                    : 'Sin referencia'}
+                </p>
+
+                <div className="fila-compacta">
+                  <input
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="Nuevo precio"
+                    value={preciosEditados[equipo.id] ?? ''}
+                    onChange={(e) =>
+                      setPreciosEditados((prev) => ({
+                        ...prev,
+                        [equipo.id]: e.target.value,
+                      }))
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="boton-secundario"
+                    onClick={() => actualizarPrecioEquipo(equipo.id)}
+                  >
+                    Fijar precio
+                  </button>
+                </div>
+
                 <Link to={`/solicitudes?dispositivoId=${equipo.id}`}>Reportar falla</Link>
               </article>
             ))}
