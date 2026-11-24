@@ -14,3 +14,16 @@ export function crearSolicitud(datosSolicitud) {
     body: JSON.stringify(datosSolicitud),
   });
 }
+
+export function editarSolicitud(solicitudId, descripcion) {
+  return mandarPeticion(`/repair-requests/${solicitudId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ descripcion }),
+  });
+}
+
+export function eliminarSolicitud(solicitudId) {
+  return mandarPeticion(`/repair-requests/${solicitudId}`, {
+    method: 'DELETE',
+  });
+}
