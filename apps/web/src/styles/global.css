@@ -553,3 +553,89 @@ button:disabled {
     transition-duration: 0.01ms !important;
   }
 }
+
+.boton-secundario {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.boton-secundario:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.fila-acciones,
+.fila-compacta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.45rem;
+}
+
+.fila-compacta input {
+  flex: 1;
+  min-width: 110px;
+}
+
+.bloque-conceptos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.9rem;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.65rem;
+}
+
+.fila-concepto {
+  display: grid;
+  grid-template-columns: 2fr 0.7fr 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.lista-conceptos,
+.lista-historial {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-left: 0.25rem;
+  font-size: 0.88rem;
+  color: #d4d4d8;
+}
+
+.caja-ahorro {
+  padding: 0.75rem 0.9rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-left: 3px solid #ffffff;
+  border-radius: 0.55rem;
+  margin-top: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.lista-reparaciones {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  margin-top: 1.15rem;
+}
+
+.bloque-historial {
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.espacio-superior {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 720px) {
+  .fila-concepto {
+    grid-template-columns: 1fr;
+  }
+}
