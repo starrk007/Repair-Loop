@@ -8,6 +8,9 @@ test('solo permite transiciones lineales y observaciones válidas', () => {
     assert.deepEqual(validarAvanceReparacion('en_reparacion', 'Se inició el diagnóstico.'), {
         estado: 'en_reparacion', observacion: 'Se inició el diagnóstico.'
     });
+    assert.deepEqual(validarAvanceReparacion('finalizada', 'La reparación fue completada.'), {
+        estado: 'finalizada', observacion: 'La reparación fue completada.'
+    });
     assert.equal(siguienteEstadoReparacion('asignada', 'en_reparacion'), 'en_reparacion');
     assert.throws(() => siguienteEstadoReparacion('asignada', 'finalizada'), /siguiente estado/);
     assert.throws(() => validarAvanceReparacion('cancelada', 'No aplica.'), /no es válido/);

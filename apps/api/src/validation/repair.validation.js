@@ -6,7 +6,7 @@ const TRANSICIONES = Object.freeze({
 });
 
 export function validarAvanceReparacion(estado, observacion) {
-    if (!Object.prototype.hasOwnProperty.call(TRANSICIONES, estado)) {
+    if (!Object.values(TRANSICIONES).includes(estado)) {
         throw new DomainError(422, 'El estado solicitado no es válido.', 'VALIDACION');
     }
     if (typeof observacion !== 'string' || observacion.trim().length < 2 || observacion.trim().length > 500) {
