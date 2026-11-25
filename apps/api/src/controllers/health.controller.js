@@ -1,4 +1,4 @@
-export function getHealth(req, res) {
+export function obtenerSalud(req, res) {
     return res.status(200).json({
         success: true,
         data: {

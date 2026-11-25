@@ -10,8 +10,8 @@ export function ProfilePage() {
   const { datosPerfil, recargarPerfil } = useAuth();
 
   const [fichaTaller, setFichaTaller] = useState({
-    description: '',
-    services: '',
+    descripcion: '',
+    servicios: '',
   });
 
   const [tienePerfilTecnico, setTienePerfilTecnico] = useState(false);
@@ -21,15 +21,15 @@ export function ProfilePage() {
 
   useEffect(() => {
     const cargarDatosTecnico = async () => {
-      if (datosPerfil?.role !== 'tecnico') {
+      if (datosPerfil?.rol !== 'tecnico') {
         return;
       }
       try {
         const perfilTec = await traerPerfilTecnico();
         setFichaTaller({
-          description: perfilTec.description || '',
-          services: Array.isArray(perfilTec.services)
-            ? perfilTec.services.join(', ')
+          descripcion: perfilTec.descripcion || '',
+          servicios: Array.isArray(perfilTec.servicios)
+            ? perfilTec.servicios.join(', ')
             : '',
         });
         setTienePerfilTecnico(true);
@@ -39,7 +39,7 @@ export function ProfilePage() {
     };
 
     cargarDatosTecnico();
-  }, [datosPerfil?.role]);
+  }, [datosPerfil?.rol]);
 
   const cambiarTaller = (evento) => {
     const { name, value } = evento.target;
@@ -52,8 +52,8 @@ export function ProfilePage() {
     setGuardando(true);
     try {
       await crearMiPerfil({
-        name: datosPerfil?.name,
-        role: datosPerfil?.role,
+        nombre: datosPerfil?.nombre || 'Usuario',
+        rol: datosPerfil?.rol || 'usuario',
       });
       await recargarPerfil();
       setMensajeEstado('Perfil de usuario registrado en base de datos');
@@ -71,14 +71,14 @@ export function ProfilePage() {
     setGuardando(true);
 
     try {
-      const listaServicios = fichaTaller.services
+      const listaServicios = fichaTaller.servicios
         .split(',')
         .map((item) => item.trim())
         .filter(Boolean);
 
       await guardarPerfilTecnico({
-        description: fichaTaller.description,
-        services: listaServicios,
+        descripcion: fichaTaller.descripcion,
+        servicios: listaServicios,
       });
 
       setTienePerfilTecnico(true);
@@ -90,18 +90,18 @@ export function ProfilePage() {
     }
   };
 
-  const etiquetaRol = datosPerfil?.role === 'tecnico' ? 'Técnico' : 'Usuario';
+  const etiquetaRol = datosPerfil?.rol === 'tecnico' ? 'Técnico' : 'Cliente';
 
   return (
     <main className="pagina-contenido">
       <h1>Mi Perfil</h1>
 
       <section className="panel-formulario">
-        <p>Nombre: {datosPerfil?.name}</p>
-        <p>Correo registrado: {datosPerfil?.email}</p>
+        <p>Nombre: {datosPerfil?.nombre}</p>
+        <p>Correo registrado: {datosPerfil?.correo}</p>
         <p>Rol activo: {etiquetaRol}</p>
 
-        {!datosPerfil?.createdAt && datosPerfil?.role && (
+        {!datosPerfil?.fechaCreacion && (
           <div className="formulario-bloque">
             <button type="button" onClick={sincronizarUsuario} disabled={guardando}>
               Completar registro de perfil en servidor
@@ -110,15 +110,15 @@ export function ProfilePage() {
         )}
       </section>
 
-      {datosPerfil?.role === 'tecnico' && (
+      {datosPerfil?.rol === 'tecnico' && (
         <section className="panel-formulario">
           <h2>Perfil profesional del técnico</h2>
           <form onSubmit={enviarTaller} className="formulario-bloque">
             <label>
               Descripción de experiencia y taller (mínimo 10 caracteres)
               <textarea
-                name="description"
-                value={fichaTaller.description}
+                name="descripcion"
+                value={fichaTaller.descripcion}
                 onChange={cambiarTaller}
                 minLength={10}
                 maxLength={1000}
@@ -132,8 +132,8 @@ export function ProfilePage() {
               Servicios ofrecidos (separados por coma)
               <input
                 type="text"
-                name="services"
-                value={fichaTaller.services}
+                name="servicios"
+                value={fichaTaller.servicios}
                 onChange={cambiarTaller}
                 placeholder="Cambio de pantalla, Limpieza interna, Cambio de batería"
                 required

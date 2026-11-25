@@ -6,6 +6,7 @@ import { AuthPage } from './pages/AuthPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { DevicesPage } from './pages/DevicesPage';
 import { RequestsPage } from './pages/RequestsPage';
+import { RepairsPage } from './pages/RepairsPage';
 
 export default function App() {
   return (
@@ -35,6 +36,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <RequestsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reparaciones"
+            element={
+              <ProtectedRoute>
+                <RepairsPage />
               </ProtectedRoute>
             }
           />

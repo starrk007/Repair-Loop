@@ -1,65 +1,127 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { db } from '../config/firebase.js';
+import { DomainError } from '../errors/domain.error.js';
 
-function formatRepairRequest(document) {
-    const repairRequest = document.data();
+function formatearSolicitud(documento, incluirPropietario = true) {
+    const solicitud = documento.data();
 
     return {
-        id: document.id,
-        clientId: repairRequest.clientId,
-        deviceId: repairRequest.deviceId,
-        description: repairRequest.description,
-        status: repairRequest.status,
-        createdAt: repairRequest.createdAt?.toDate().toISOString() ?? null
+        id: documento.id,
+        ...(incluirPropietario ? { usuarioId: solicitud.usuarioId } : {}),
+        dispositivoId: solicitud.dispositivoId,
+        descripcion: solicitud.descripcion,
+        estado: solicitud.estado,
+        fechaCreacion: solicitud.fechaCreacion?.toDate().toISOString() ?? null
     };
 }
 
-export async function createRepairRequest(clientId, data) {
-    const deviceDocument = await db.collection('devices')
-        .doc(data.deviceId)
+export async function crearSolicitudReparacion(usuarioId, datos) {
+    const documentoDispositivo = await db.collection('dispositivos')
+        .doc(datos.dispositivoId)
         .get();
 
-    if (!deviceDocument.exists ||
-        deviceDocument.data().ownerId !== clientId) {
+    if (!documentoDispositivo.exists ||
+        documentoDispositivo.data().propietarioId !== usuarioId) {
         return null;
     }
 
-    const requestRef = db.collection('repairRequests').doc();
+    const referenciaSolicitud = db.collection('solicitudesReparacion').doc();
 
-    await requestRef.create({
-        clientId,
-        deviceId: deviceDocument.id,
-        description: data.description,
-        status: 'open',
-        createdAt: FieldValue.serverTimestamp()
+    await referenciaSolicitud.create({
+        usuarioId,
+        dispositivoId: documentoDispositivo.id,
+        descripcion: datos.descripcion,
+        estado: 'abierta',
+        fechaCreacion: FieldValue.serverTimestamp()
     });
 
-    const document = await requestRef.get();
+    const documento = await referenciaSolicitud.get();
 
-    return formatRepairRequest(document);
+    return formatearSolicitud(documento);
 }
 
-export async function getRepairRequestsByClient(clientId) {
-    const snapshot = await db.collection('repairRequests')
-        .where('clientId', '==', clientId)
+export async function obtenerSolicitudesPorUsuario(usuarioId) {
+    const consulta = await db.collection('solicitudesReparacion')
+        .where('usuarioId', '==', usuarioId)
         .get();
 
-    return snapshot.docs.map(formatRepairRequest);
+    return consulta.docs.map(formatearSolicitud);
 }
 
-export async function getOpenRepairRequests() {
-    const snapshot = await db.collection('repairRequests')
-        .where('status', '==', 'open')
+export async function obtenerSolicitudesAbiertas() {
+    const consulta = await db.collection('solicitudesReparacion')
+        .where('estado', '==', 'abierta')
         .get();
 
-    return snapshot.docs.map(document => {
-        const repairRequest = document.data();
+    return consulta.docs.map(documento => formatearSolicitud(documento, false));
+}
 
+export async function obtenerSolicitudPorId(solicitudId, usuarioId, rol) {
+    const documento = await db.collection('solicitudesReparacion').doc(solicitudId).get();
+
+    if (!documento.exists) {
+        throw new DomainError(404, 'No se encontró la solicitud.', 'NO_ENCONTRADO');
+    }
+
+    const solicitud = documento.data();
+    if (rol === 'usuario' && solicitud.usuarioId !== usuarioId) {
+        throw new DomainError(403, 'No tienes permisos para consultar esta solicitud.', 'PERMISOS');
+    }
+    if (rol === 'tecnico' && solicitud.estado !== 'abierta') {
+        throw new DomainError(409, 'La solicitud ya no está abierta para cotizar.', 'ESTADO');
+    }
+
+    return formatearSolicitud(documento, rol === 'usuario');
+}
+
+async function validarSolicitudModificable(transaccion, solicitudId, usuarioId) {
+    const referencia = db.collection('solicitudesReparacion').doc(solicitudId);
+    const documento = await transaccion.get(referencia);
+
+    if (!documento.exists) {
+        throw new DomainError(404, 'No se encontró la solicitud.', 'NO_ENCONTRADO');
+    }
+    const solicitud = documento.data();
+    if (solicitud.usuarioId !== usuarioId) {
+        throw new DomainError(403, 'Solo el propietario puede modificar esta solicitud.', 'PERMISOS');
+    }
+    if (solicitud.estado !== 'abierta') {
+        throw new DomainError(409, 'Solo puedes modificar una solicitud abierta.', 'ESTADO');
+    }
+    if (solicitud.reparacionId) {
+        throw new DomainError(409, 'No puedes modificar una solicitud que ya tiene una reparación asociada.', 'ESTADO');
+    }
+
+    const cotizaciones = await transaccion.get(db.collection('cotizaciones')
+        .where('solicitudId', '==', solicitudId).limit(1));
+    if (!cotizaciones.empty) {
+        throw new DomainError(409, 'No puedes modificar una solicitud que ya tiene cotizaciones.', 'ESTADO');
+    }
+
+    const reparaciones = await transaccion.get(db.collection('reparaciones')
+        .where('solicitudId', '==', solicitudId).limit(1));
+    if (!reparaciones.empty) {
+        throw new DomainError(409, 'No puedes modificar una solicitud que ya tiene una reparación asociada.', 'ESTADO');
+    }
+
+    return { referencia, documento };
+}
+
+export async function editarDescripcionSolicitud(solicitudId, usuarioId, descripcion) {
+    return db.runTransaction(async transaccion => {
+        const { referencia, documento } = await validarSolicitudModificable(transaccion, solicitudId, usuarioId);
+        transaccion.update(referencia, { descripcion });
         return {
-            id: document.id,
-            description: repairRequest.description,
-            status: repairRequest.status,
-            createdAt: repairRequest.createdAt?.toDate().toISOString() ?? null
+            ...formatearSolicitud(documento),
+            descripcion
         };
+    });
+}
+
+export async function eliminarSolicitud(solicitudId, usuarioId) {
+    return db.runTransaction(async transaccion => {
+        const { referencia } = await validarSolicitudModificable(transaccion, solicitudId, usuarioId);
+        transaccion.delete(referencia);
+        return true;
     });
 }

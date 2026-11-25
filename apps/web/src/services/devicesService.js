@@ -10,3 +10,10 @@ export function registrarEquipo(datosEquipo) {
     body: JSON.stringify(datosEquipo),
   });
 }
+
+export function cambiarPrecioReemplazo(dispositivoId, precioReemplazo) {
+  return mandarPeticion(`/devices/${dispositivoId}/replacement-price`, {
+    method: 'PATCH',
+    body: JSON.stringify({ precioReemplazo }),
+  });
+}

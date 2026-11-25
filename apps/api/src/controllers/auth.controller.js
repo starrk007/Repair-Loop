@@ -1,4 +1,4 @@
-export function getCurrentUser(req, res) {
+export function obtenerUsuarioActual(req, res) {
     return res.status(200).json({
         success: true,
         data: {

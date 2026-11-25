@@ -23,9 +23,9 @@ export function AuthProvider({ children }) {
     } catch {
       setDatosPerfil({
         uid: usuario.uid,
-        name: usuario.displayName || 'Usuario',
-        email: usuario.email,
-        role: 'usuario',
+        nombre: usuario.displayName || 'Usuario',
+        correo: usuario.email,
+        rol: 'usuario',
       });
     }
   };
@@ -51,8 +51,8 @@ export function AuthProvider({ children }) {
     const perfilCreado = await mandarPeticion('/users/me', {
       method: 'POST',
       body: JSON.stringify({
-        name: nombre,
-        role: rol,
+        nombre,
+        rol,
       }),
     });
 

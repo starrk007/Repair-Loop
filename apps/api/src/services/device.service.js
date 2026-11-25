@@ -1,39 +1,59 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { db } from '../config/firebase.js';
 
-function formatDevice(document) {
-    const device = document.data();
+function formatearDispositivo(documento) {
+    const dispositivo = documento.data();
 
     return {
-        id: document.id,
-        ownerId: device.ownerId,
-        type: device.type,
-        brand: device.brand,
-        model: device.model,
-        createdAt: device.createdAt?.toDate().toISOString() ?? null
+        id: documento.id,
+        propietarioId: dispositivo.propietarioId,
+        tipo: dispositivo.tipo,
+        marca: dispositivo.marca,
+        modelo: dispositivo.modelo,
+        precioReemplazo: dispositivo.precioReemplazo ?? null,
+        fechaCreacion: dispositivo.fechaCreacion?.toDate().toISOString() ?? null
     };
 }
 
-export async function createDevice(ownerId, data) {
-    const deviceRef = db.collection('devices').doc();
+export async function crearDispositivo(propietarioId, datos) {
+    const referenciaDispositivo = db.collection('dispositivos').doc();
 
-    await deviceRef.create({
-        ownerId,
-        type: data.type,
-        brand: data.brand,
-        model: data.model,
-        createdAt: FieldValue.serverTimestamp()
+    await referenciaDispositivo.create({
+        propietarioId,
+        tipo: datos.tipo,
+        marca: datos.marca,
+        modelo: datos.modelo,
+        ...(datos.precioReemplazo !== undefined ? { precioReemplazo: datos.precioReemplazo } : {}),
+        fechaCreacion: FieldValue.serverTimestamp()
     });
 
-    const document = await deviceRef.get();
+    const documento = await referenciaDispositivo.get();
 
-    return formatDevice(document);
+    return formatearDispositivo(documento);
 }
 
-export async function getDevicesByOwner(ownerId) {
-    const snapshot = await db.collection('devices')
-        .where('ownerId', '==', ownerId)
+export async function establecerPrecioReemplazo(dispositivoId, propietarioId, precioReemplazo) {
+    return db.runTransaction(async transaccion => {
+        const referencia = db.collection('dispositivos').doc(dispositivoId);
+        const documento = await transaccion.get(referencia);
+        if (!documento.exists) {
+            return null;
+        }
+        if (documento.data().propietarioId !== propietarioId) {
+            return false;
+        }
+        transaccion.update(referencia, { precioReemplazo });
+        return {
+            ...formatearDispositivo(documento),
+            precioReemplazo
+        };
+    });
+}
+
+export async function obtenerDispositivosPorPropietario(propietarioId) {
+    const consulta = await db.collection('dispositivos')
+        .where('propietarioId', '==', propietarioId)
         .get();
 
-    return snapshot.docs.map(formatDevice);
+    return consulta.docs.map(formatearDispositivo);
 }
